@@ -12,7 +12,7 @@ public class ByteBuffer implements Outputable {
 
     ByteArr curByteArray;
 
-    private int offset;
+    private int length;
 
     public ByteBuffer() {
         this(EXPAND_STEP_SIZE);
@@ -27,7 +27,7 @@ public class ByteBuffer implements Outputable {
     public void putByte(byte byte1) {
         this.curByteArray.checkBounds(this)
                 .putByte(byte1);
-        offset ++;
+        length++;
     }
 
 
@@ -35,14 +35,14 @@ public class ByteBuffer implements Outputable {
     public void putBytes(byte[] bytes) {
         this.curByteArray.checkBounds(bytes.length, this)
                 .putBytes(bytes);
-        offset += bytes.length;
+        length += bytes.length;
     }
 
     @Override
     public void putBytes(byte[] bytes, int start, int length) {
         this.curByteArray.checkBounds(length, this)
                 .putBytes(bytes, start, length);
-        offset += length;
+        this.length += length;
     }
 
 
@@ -52,10 +52,10 @@ public class ByteBuffer implements Outputable {
      */
     public ByteArray getByteArray() {
         if (rootByteArray == curByteArray) {
-            return new ByteArray(rootByteArray.byteArray, 0, offset);
+            return new ByteArray(rootByteArray.byteArray, 0, length);
         }
 
-        byte[] byteArray = new byte[offset];
+        byte[] byteArray = new byte[length];
         ByteArr curBytesArr = this.rootByteArray;
         int loopOffset = 0;
         do {
@@ -63,7 +63,7 @@ public class ByteBuffer implements Outputable {
             loopOffset += curBytesArr.offset;
         } while ((curBytesArr = curBytesArr.next) != null);
 
-        return new ByteArray(byteArray, 0, offset);
+        return new ByteArray(byteArray, 0, length);
     }
 
 
@@ -72,9 +72,9 @@ public class ByteBuffer implements Outputable {
      * @return
      */
     public byte[] toBytes() {
-        byte[] byteArray = new byte[offset];
+        byte[] byteArray = new byte[length];
         if (rootByteArray == curByteArray) {
-            System.arraycopy(rootByteArray.byteArray, 0, byteArray, 0, offset);
+            System.arraycopy(rootByteArray.byteArray, 0, byteArray, 0, length);
             return byteArray;
         }
 
@@ -94,7 +94,7 @@ public class ByteBuffer implements Outputable {
      * @return
      */
     public int length() {
-        return this.offset;
+        return this.length;
     }
 
 

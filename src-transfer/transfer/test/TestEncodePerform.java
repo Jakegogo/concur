@@ -2,13 +2,16 @@ package transfer.test;
 
 import com.baidu.bjf.remoting.protobuf.Codec;
 import com.baidu.bjf.remoting.protobuf.ProtobufProxy;
+import com.caucho.hessian.io.Hessian2Output;
 import transfer.ByteArray;
 import transfer.Transfer;
 import transfer.def.TransferConfig;
 import utils.JsonUtils;
 import utils.ProtostuffUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by Administrator on 2015/2/26.
@@ -71,6 +74,50 @@ public class TestEncodePerform {
         }
         System.out.println("protostuff : " + (System.currentTimeMillis() - t1));
 
+
+
+        // hessian
+        // 序列化
+
+
+        t1 = System.currentTimeMillis();
+        try {
+            for (int i = 0; i < 10000000;i++) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                Hessian2Output h2o = new Hessian2Output(os);
+                h2o.startMessage();
+                h2o.writeObject(entity);
+                h2o.completeMessage();
+                h2o.close();
+
+                byte[] buffer = os.toByteArray();
+                os.close();
+                if (i == 0) {
+                    System.out.println("hessian length:" + buffer.length);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("hessian : " + (System.currentTimeMillis() - t1));
+
+
+        // java序列化
+        t1 = System.currentTimeMillis();
+        try {
+            for (int i = 0; i < 10000000;i++) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(os);
+                out.writeObject(entity);
+                byte[] buffer = os.toByteArray();
+                if (i == 0) {
+                    System.out.println("java length:" + buffer.length);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("java : " + (System.currentTimeMillis() - t1));
 
 
         t1 = System.currentTimeMillis();
